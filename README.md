@@ -27,7 +27,7 @@ myapp/
 
 - **Backend Framework**: Express.js 4.21.2
 - **Database**: MongoDB with Mongoose ODM 8.18.3
-- **View Engine**: Jade/Pug 1.9.2
+- **View Engine**: Pug 3.0.3
 - **Middleware**:
   - Morgan (HTTP request logger)
   - Cookie-parser
@@ -91,6 +91,7 @@ myapp/
 
 ## API Endpoints
 
+### Todo Endpoints
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/todos` | ดึงรายการ Todo ทั้งหมด |
@@ -101,6 +102,13 @@ myapp/
 | DELETE | `/api/todos/:id` | ลบ Todo |
 | DELETE | `/api/todos` | ลบ Todo ที่เสร็จแล้วทั้งหมด |
 | GET | `/api/todos/stats/summary` | ดึงสถิติ Todo |
+
+### Health Check Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | ตรวจสอบสถานะภาพ Backend |
+| GET | `/api/health/database` | ตรวจสอบการเชื่อมต่อฐานข้อมูล |
+| GET | `/api/health/detailed` | ตรวจสอบสถานะภาพแบบละเอียด |
 
 ### รายละเอียด API
 
@@ -167,6 +175,108 @@ GET /api/todos?priority=high&sort=-createdAt
 }
 ```
 
+#### 5. GET /api/health - ตรวจสอบสถานะภาพ Backend
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Backend is healthy",
+  "data": {
+    "status": "healthy",
+    "timestamp": "2024-12-31T10:30:00.000Z",
+    "uptime": 3600.5,
+    "environment": "development",
+    "version": "0.0.0",
+    "server": {
+      "nodejs": "v20.10.0",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "memory": {
+        "used": 45.67,
+        "total": 89.23,
+        "external": 2.45
+      }
+    }
+  }
+}
+```
+
+#### 6. GET /api/health/database - ตรวจสอบการเชื่อมต่อฐานข้อมูล
+
+**Response (เชื่อมต่อสำเร็จ):**
+```json
+{
+  "success": true,
+  "message": "Database connection is healthy",
+  "data": {
+    "database": {
+      "status": "connected",
+      "state": 1,
+      "host": "cluster0.mongodb.net",
+      "port": 27017,
+      "name": "todolist",
+      "responseTime": "45ms",
+      "collectionsCount": 2
+    },
+    "timestamp": "2024-12-31T10:30:00.000Z"
+  }
+}
+```
+
+**Response (เชื่อมต่อไม่สำเร็จ):**
+```json
+{
+  "success": false,
+  "message": "Database connection is unhealthy",
+  "data": {
+    "database": {
+      "status": "disconnected",
+      "state": 0
+    },
+    "timestamp": "2024-12-31T10:30:00.000Z"
+  }
+}
+```
+
+#### 7. GET /api/health/detailed - ตรวจสอบสถานะภาพแบบละเอียด
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "System status: healthy",
+  "data": {
+    "status": "healthy",
+    "timestamp": "2024-12-31T10:30:00.000Z",
+    "uptime": 3600.5,
+    "environment": "development",
+    "version": "0.0.0",
+    "server": {
+      "nodejs": "v20.10.0",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "memory": {
+        "used": 45.67,
+        "total": 89.23,
+        "external": 2.45,
+        "rss": 67.89
+      }
+    },
+    "database": {
+      "status": "connected",
+      "state": 1,
+      "host": "cluster0.mongodb.net",
+      "port": 27017,
+      "name": "todolist",
+      "responseTime": "45ms",
+      "collectionsCount": 2
+    },
+    "responseTime": "67ms"
+  }
+}
+```
+
 ## รูปแบบ Response
 
 ทุก API จะตอบกลับในรูปแบบ:
@@ -220,6 +330,21 @@ curl -X DELETE http://localhost:3000/api/todos/[TODO_ID]
 curl http://localhost:3000/api/todos/stats/summary
 ```
 
+### ตรวจสอบสถานะภาพ Backend
+```bash
+curl http://localhost:3000/api/health
+```
+
+### ตรวจสอบการเชื่อมต่อฐานข้อมูล
+```bash
+curl http://localhost:3000/api/health/database
+```
+
+### ตรวจสอบสถานะภาพแบบละเอียด
+```bash
+curl http://localhost:3000/api/health/detailed
+```
+
 ## Features หลัก
 
 ### 🔍 การกรองและค้นหา
@@ -243,6 +368,13 @@ curl http://localhost:3000/api/todos/stats/summary
 - การเรียงลำดับที่มีประสิทธิภาพ
 - MongoDB Aggregation สำหรับสถิติ
 - Connection pooling ผ่าน Mongoose
+
+### 🏥 Health Monitoring
+- ตรวจสอบสถานะภาพ Backend (uptime, memory, server info)
+- ตรวจสอบการเชื่อมต่อฐานข้อมูล MongoDB
+- การตรวจสอบแบบละเอียด (comprehensive health check)
+- Response time monitoring
+- System resource monitoring
 
 ## การกำหนดค่าฐานข้อมูล MongoDB Atlas
 
